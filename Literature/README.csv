@@ -1,0 +1,8 @@
+Title,Authors,Date,Description,Summary,Score
+Cryptanalysis Of FHE Schemes,"Ahmed El-Yahyaoui, Mohamed Dafir Elkettani",May-16,,,
+Efficient FHE From RLWE,"Xiaojun Zhang, Chunxiang Xu, Chunhua Jin, Run Xie, Jining Zhao",2014,,,
+Exploring The Feasibility Of FHE,"Wei Wang, Yin Hu, Lianmu Chen, Xinming Huang, Berk Sunar",Mar-15,,,
+FHE Over The Integers,"Marten van Dijk, Craig Gentry, Shai Halevi, Vinod Vaikuntanathan",2010,,,
+Guide To FHE,,,Overview of the field and current research and applications,"Does not go into any implementation detail, but takes great care to give a formal introduction to the problem itself and what challenges one encounters in solving it.  Gives a lot of definitions and theorems summarizing current research, which is very helpful.",8
+HE Procedia Computer Science,"Monique Ogburn, Claude Turner, Pushkar Dahal",2013,,,
+HE And Its Applications,"Xun Yi, Russell Paulet, Elisa Bertino",2014,Book on FHE but does not appear to be extremely detailed,,
