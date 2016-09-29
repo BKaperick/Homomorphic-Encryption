@@ -1,0 +1,18 @@
+import java.util.*;
+public class integerSHE {
+    private int secPar, lenPK, lenSK, lenNoise, intsPK;
+    int sk, pk;
+    public static void main(int lam, int gam, int nu, int rho, int tau) {
+   	secPar = lam; 
+	lenPK = gam;
+	lenSK = nu;
+	lenNoise = rho;
+	intsPK = tau;
+    }
+
+    public static void keyGen() {
+	sk = randOfSize(lenSK);
+
+    }
+}
+
