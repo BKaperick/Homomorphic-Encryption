@@ -1,0 +1,101 @@
+def _dist_special(self):
+    q = rand_of_size(self.lenPK) // self.sk
+    r = rand_of_size(self.lenNoise, signed=True)
+    return self.sk*q + r
+
+def test(*args):
+    
+    # q in [0, 2^a0 /a1 )
+    q = rand_of_size(args[0]) // args[1]
+
+    # r in (-2^a2, 2^a2)
+    r = rand_of_size(args[2], signed=True)
+
+    # [-2^a2, 2^(a0-1) + 2^a2)
+    return args[1]*q + r, q, r
+
+q in [0, floor(2^lenPK / sk) )
+r in (-2^a2, 2^a2)
+
+Let lenPK = 3
+Let sk = 5
+Let lenNoise = 4
+
+q in {0, 0, 0, 0, 0, 1, 1, 1, 1}
+r in {-15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1,
+2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+
+sk*q + r in {-15, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1,
+2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15} union {-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1,
+2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+
+-15 5
+-14 5
+-13 5
+-12 5
+-11 9
+-10 9
+-9  9
+-8  9
+-7  9
+...
+15  9
+16  5
+17  4
+18  4
+19  4
+20  4
+
+
+2^x = y
+
+2^x / y = z
+z = 1
+x = log2(yz)
+find x' such that 
+2^x' / y = z+1
+2^x' = (z+1)y
+x' = log2[2y]
+
+
+
+As sk -> infty:
+    Fix lenPK
+    If lenPK < log2(sk),    dist goes to uniform over (-2^lenNoise, 2^lenNoise)
+    If lenPK in [log2(sk), log2(2sk)),  the dist range is now (-2^lenNoise,
+    2^lenNoise + sk) and number near the center are more likely to be hit.
+    Observe it is not symmetric; the smallest q integers are more likely than
+    the largest q integers in a ratio proportional to the distance of lenPK
+    from log2(2sk)-1.
+        If lenPK == log2(2sk)-1, a symmetric distribution is achieved, with 
+            x in (-2^lenNoise, -2^lenNoise + q) and x in [2^lenNoise,
+            2^lenNoise + q) equally likely, each value 1/2 as likely as any in
+            the middle.
+
+    (-2^lenNoise, 2^lenNoise) union (-2^lenNoise + 
+
+    
+
+As lenPK -> infty:
+    uniform disks (possibly overlapping with accumulation) around each
+    positive multiple of sk.  For fixed lenNoise these will either always be
+    disjoint, or always overlapping.  higher lenNoise -> more overlap.
+
+    If 2^lenNoise - 1 == sk/2, goes to near-uniform.  Integers of form
+    sk*(k+1/2) will have double chance of being selected
+    If 2^lenNoise - 1 > sk/2, all integers possible, but some degree of
+    overlap
+    If 2^lenNoise - 1 < sk/2, disjoint, so integers in a disk around k*sk/2
+    are unreachable
+
+    lenNoise = 2, sk = 6, lenPK = 100
+        q in {0, 1, 2, ...}
+        r in {-3, -2, -1, 0, 1, 2, 3}
+
+        ans = q*sk +/- 3
+        {-3, -2, -1, 0, 1, 2, 3, 3, 4, 5, 6, 7, 8, 9, 9, 10, ...}
+
+As lenNoise -> infty:
+    The range of the distribution obviously goes to all integers.  Not uniform
+    though.  Clumps of higher probability form around postive multiplies of q
+    up till floor(2^lenPK / q)
