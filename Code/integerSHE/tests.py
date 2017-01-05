@@ -119,7 +119,7 @@ class Test(unittest.TestCase):
         self.assertEqual(17, message_out[0])
         self.assertEqual(13, message_out[1])
 
-    
+    # F returns 1 for odd number of 1-bits, 0 for even number    
     def test_evaluate_binary_add(self):
         scheme = self.scheme
         F = lambda x: [sum(x)]
@@ -136,6 +136,17 @@ class Test(unittest.TestCase):
             evaluated_bits = scheme.evaluate(encrypted_bits, F)
             decrypted = scheme.decrypt_bytes(evaluated_bits)
             self.assertEqual(decrypted[0], bin(message).count('1') % 2)
+    
+    # F returns 1 for 2 least sig bits on, else 0
+    def test_evaluate_binary_mult(self):
+        scheme = self.scheme
+        F = lambda x: [x[0]*x[1]]
+        messages = [4,5,6,7,8,]
+        for message in messages: 
+            encrypted_bits = scheme.encrypt_int(message)
+            evaluated_bits = scheme.evaluate(encrypted_bits, F)
+            decrypted = scheme.decrypt_bytes(evaluated_bits)
+            self.assertEqual(decrypted[0], int(message % 2 == (message & 2) >> 1 == 1))
 
 
 if __name__ == '__main__':
