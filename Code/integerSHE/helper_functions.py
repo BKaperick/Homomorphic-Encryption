@@ -1,4 +1,5 @@
 import random as rand
+from math import ceil, log
 
 #Returns a sample uniformly chosen from the set space
 def uniform_sample(space):
@@ -43,6 +44,11 @@ def rand_of_exact_size(size):
     mask = 1 << (size - 1)
     return val | mask
 
+def bit_length(num):
+    return ceil(log(num+1, 2))
+
+def byte_length(num):
+    return ceil(log(num+1,2) / 8)
 
 #the quotient between p and z rounded to the nearest integer
 def q(p,z):

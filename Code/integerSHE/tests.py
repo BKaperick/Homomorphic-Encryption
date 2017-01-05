@@ -1,22 +1,39 @@
 import unittest
 from main import *
 from helper_functions import *
+import random as rand
 
-class TestScheme(unittest.TestCase):
+class Test(unittest.TestCase):
     
     def setUp(self):
         
         #Constants for one particular scheme
-        lam = 1
-        gam = 1
-        rho = 1
-        rho_prime = 1
-        tau = 1 
-        nu  = 1
+        c1 = 10
+        c2 = 10
+        lam = 2
+        gam = 80
+        rho = 2 
+        rho_prime = 4
+        tau = 82
+        nu  = 20
 
         # Initialize scheme with given parameters
         self.scheme = Scheme(lam, gam, nu, rho, rho_prime, tau)
         self.scheme.key_gen()
+
+    def test_bit_length(self):
+        self.assertEqual(bit_length(7), 3)
+        self.assertEqual(bit_length(8), 4)
+        self.assertEqual(bit_length(250), 8)
+        self.assertEqual(bit_length(256), 9)
+        self.assertEqual(bit_length(1), 1)
+        self.assertEqual(bit_length(0), 0)
+
+    def test_byte_length(self):
+        self.assertEqual(byte_length(255), 1)
+        self.assertEqual(byte_length(256), 2)
+        self.assertEqual(byte_length(1), 1)
+        self.assertEqual(byte_length(0), 0)
 
     def test_mod(self):
         p = 5
@@ -33,8 +50,29 @@ class TestScheme(unittest.TestCase):
         for i,z in enumerate(range(0,5)):
             self.assertEqual(q(p,z), qs[i])
             self.assertEqual(rmod(p,z), rs[i])
-        
-
+    
+    # Given this paper's rmod(p,z), we establish the following conjecture:
+    # Let a and b be integers.
+    #     If a even and b odd, rmod(2,a) - rmod(2,b) == rmod(2,b-a) == 1
+    #     Else, rmod(2,a) - rmod(2,b) == rmod(2,a-b)
+    def test_mod_conjecture(self):
+        a = rand.randint(0,100)
+        b = rand.randint(0,100)
+        if a % 2 == 0:
+            if b % 2 == 0:
+                self.assertEqual(rmod(2, a-b), 0)
+                self.assertEqual(rmod(2, a) - rmod(2,b), 0)
+            elif b % 2 == 1:
+                self.assertEqual(rmod(2, a-b), -1)
+                self.assertEqual(rmod(2, a) - rmod(2,b), 1)
+        else:
+            if b % 2 == 0:
+                self.assertEqual(rmod(2, a-b), -1)
+                self.assertEqual(rmod(2, a) - rmod(2,b), -1)
+            elif b % 2 == 1:
+                self.assertEqual(rmod(2, a-b), 0)
+                self.assertEqual(rmod(2, a) - rmod(2,b), 0)
+    
     def test_keygen(self):
         scheme = self.scheme
         self.assertEqual(scheme.pk[0] % 2, 1)
@@ -42,6 +80,63 @@ class TestScheme(unittest.TestCase):
         self.assertEqual(max(scheme.pk), scheme.pk[0])
         self.assertTrue((1 << (scheme.lenSK - 1)) <= scheme.sk < (1 << scheme.lenSK))
         self.assertEqual(scheme.sk % 2, 1)
+    
+    def test_encrypt_decrypt(self):
+        scheme = self.scheme
+        self.assertEqual(scheme.decrypt(scheme.encrypt(0)), 0)
+        self.assertEqual(scheme.decrypt(scheme.encrypt(1)), 1)
+
+    # Encrypt and decrypt a simple test message.  With these parameters, the chance of
+    # information corruption is at most negligible.
+    def test_encrypt_decrypt_string(self):
+        scheme = self.scheme
+        #messages = ["test message", "a", "abc", "big test test test message", "\r"]
+        messages = ['\r']
+        for message in messages:
+            mess_enc = scheme.encrypt_string(message)
+            message_out = scheme.decrypt_string(mess_enc)
+            self.assertEqual(message, message_out)
+    
+    def test_encrypt_decrypt_int(self):
+        scheme = self.scheme
+        message = 15
+        mess_enc = scheme.encrypt_int(message)
+        message_out = scheme.decrypt_bytes(mess_enc)
+        self.assertEqual(len(message_out), 1)
+        self.assertEqual(message, message_out[0])
+        scheme = self.scheme
+        
+        message = 200 # 0110 1000
+        mess_enc = scheme.encrypt_int(message)
+        message_out = scheme.decrypt_bytes(mess_enc)
+        self.assertEqual(len(message_out), 1)
+        self.assertEqual(message, message_out[0])
+
+        message = 3345 # 0000 1101 0000 1111
+        mess_enc = scheme.encrypt_int(message)
+        message_out = scheme.decrypt_bytes(mess_enc)
+        self.assertEqual(len(message_out), 2)
+        self.assertEqual(17, message_out[0])
+        self.assertEqual(13, message_out[1])
+
+    
+    def test_evaluate_binary_add(self):
+        scheme = self.scheme
+        F = lambda x: [sum(x)]
+        messages = [13,   # 0000 1101
+                    12,   # 0000 1100
+                    456,  # 1110 1000
+                    458,  # 1110 1010
+                    970,  # 0001 1110 1010
+                    1994, # 0011 1110 1010
+                    ]
+        
+        for message in messages: 
+            encrypted_bits = scheme.encrypt_int(message)
+            evaluated_bits = scheme.evaluate(encrypted_bits, F)
+            decrypted = scheme.decrypt_bytes(evaluated_bits)
+            self.assertEqual(decrypted[0], bin(message).count('1') % 2)
+
 
 if __name__ == '__main__':
     unittest.main()

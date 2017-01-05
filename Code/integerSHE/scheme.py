@@ -1,5 +1,4 @@
 import random as rand
-from math import log, ceil
 from helper_functions import *
 
 class Scheme:
@@ -42,53 +41,63 @@ class Scheme:
         val = m + 2*r + 2*sum([self.pk[i] for i in S])
         c = rmod(self.pk[0], val)
         return c
-   
-    # Input: multi-bit integer or an ascii string
-    # Output: list of integers, the encrypted bits
-    def encrypt_full(self, message):
-        
-        # Converts ASCII string to integer
-        if type(message) == str:
-            mess = 0
-            for i,c in enumerate(message[::-1]):
-               mess += ord(c) << i*7
-            message = mess
-        #print(bin(message)[2:]) 
-        # Each 7-bit chunk in message is a letter.
-        
-        # Encrypts message bit by bit
+    
+    def encrypt_int(self, message): 
+        size = byte_length(message) 
+        bytes_message = message.to_bytes(size, 'little') 
+        return self.encrypt_bytes(bytes_message)
+    
+    def encrypt_bytes(self, message):
         message_enc = []
-        size = ceil(log(message, 2))
-        for i in range(0, size):
-            m = (message & (1 << i)) >> i
-            c = self.encrypt(m)
-            message_enc.append(c)
-        
-        return message_enc, message
+        for byte in message:
+            val = 0
+            for i in range(8):
+                m = (byte & (1 << i)) >> i
+                c = self.encrypt(m)
+                message_enc.append(c)
+        return message_enc
 
-    def evaluate(self, C, Cin):
-        return C(Cin)
+    # Input: multi-bit integer or an ascii string
+    # Output: list of integers
+    def encrypt_string(self, message):
+        message_bytes = message.encode()
+        message_enc = self.encrypt_bytes(message_bytes)
+        return message_enc
+    
+    # Input: encrypted_bits: a list of encrypted bits 
+    #        func: a function of integer addition/multiplication which performs 
+    #             analogous binary addition/multiplication on unencrypted bits
+    # Output: list of evaluated encrypted bits
+    def evaluate(self, encrypted_bits, func):
+        return func(encrypted_bits)
 
     def decrypt(self, c):
         return -1*rmod(2, rmod(self.sk, c))
 
-    def decrypt_full(self, message_enc):
+    # Input list of integers, each element corresponding to an encrypted bit
+    # Output bytearray of decrypted message
+    def decrypt_bytes(self, message_enc):
         message = 0
-        #print(len(message_enc))
+        out = bytearray()
         for i,c in enumerate(message_enc):
             m = self.decrypt(c)
-            message += (m << i)
-        bits = ceil(log(message, 2))
-        pad = len(message_enc) - bits
-        chars = bits // 7
-        message_out = ''
-        for i in range(chars):
-            # 7-bit mask
-            mask = 0x7F << (7*i)
-            val = (mask & message) >> (7*i)
-            message_out += chr(val)
-        #print(pad*'0' + bin(message)[2:]) 
-        return message_out, message
+            message += m << (i % 8)
+            if i % 8 == 7:
+                out.append(message)
+                message = 0
+        
+        # str.encode() and int.to_bytes() automatically fill out bits with zeros to be a multiple of 8,
+        # but data from scheme.evaluate() will not necessarily.
+        if len(message_enc) % 8 != 0:
+            out.append(message)
+        
+        return out
+    
+    # Input list of integers, each element corresponding to an encrypted bit
+    # Output string of decrypted message
+    def decrypt_string(self, message_enc):
+        message = self.decrypt_bytes(message_enc)
+        return message.decode()
     
     # Random int
     def _dist_special(self):
