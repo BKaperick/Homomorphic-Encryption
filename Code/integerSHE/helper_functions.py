@@ -52,6 +52,7 @@ def byte_length(num):
 
 #the quotient between p and z rounded to the nearest integer
 def q(p,z):
+    #return round(z/p)
     return (2*z+p) // (2*p)
 
 # For the purposes of this paper, r(p,z) == z mod p

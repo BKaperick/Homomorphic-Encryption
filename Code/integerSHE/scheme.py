@@ -13,7 +13,7 @@ class Scheme:
         self.lenNoise = rho
         self.lenNoise_secondary = rho_prime
         self.intsPK = tau 
-
+    
     def key_gen(self):
 
         # Secret key is:
@@ -72,7 +72,7 @@ class Scheme:
         return func(encrypted_bits)
 
     def decrypt(self, c):
-        return -1*rmod(2, rmod(self.sk, c))
+        return rmod(self.sk, c) % 2
 
     # Input list of integers, each element corresponding to an encrypted bit
     # Output bytearray of decrypted message

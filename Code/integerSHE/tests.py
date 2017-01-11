@@ -1,6 +1,7 @@
 import unittest
 from main import *
 from helper_functions import *
+from attack import *
 import random as rand
 
 class Test(unittest.TestCase):
@@ -20,6 +21,11 @@ class Test(unittest.TestCase):
         # Initialize scheme with given parameters
         self.scheme = Scheme(lam, gam, nu, rho, rho_prime, tau)
         self.scheme.key_gen()
+        
+        # Attack has perfect knowledge
+        eps = 1
+        self.attack = Attack(self.scheme, eps)
+        self.attack.key_gen()
 
     def test_bit_length(self):
         self.assertEqual(bit_length(7), 3)
@@ -148,6 +154,12 @@ class Test(unittest.TestCase):
             decrypted = scheme.decrypt_bytes(evaluated_bits)
             self.assertEqual(decrypted[0], int(message % 2 == (message & 2) >> 1 == 1))
 
+    def test_lsb(self):
+        messages = [0, 15, 16, 458, 1000, 10000,10001]
+        for message in messages:
+            bit = self.attack.learn_LSB(message)
+            qp = q(self.scheme.sk, message) % 2
+            self.assertEqual(bit, qp)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,38 @@
+\documentclass[a4paper,11pt, oneside]{article}
+\usepackage{C:/Programs/Vim/TiaStyle}
+\input{C:/Programs/Vim/style.tex}
+
+\newcommand{D}{\mathcal{D}_{\gamma,\rho}(p)}
+
+\title{Analysis of Somewhat Homomorphic Encryption Over the Integer Ring}
+\author{Bryan Kaperick}
+
+\begin{document}
+\maketitle\newpage
+\section{Preliminaries}
+
+Traditionally, the modulus operator can be defined as follows
+\begin{definition}
+  Define $q_a(b) = \floor{\frac{b}{a}}$.  Then, define $a\Mod{b} = b - q_a(b)a$, which is equivalent to setting $a\Mod{b}$ to be the representative in $[0,b)$ for the residue class containing $a$ for the congruence relation of congruence modulo $b$.
+\end{definition}
+
+However, for the purposes of this paper, it will be seen that a slightly altered definition is much more convenient.
+\begin{definition}
+  Define $q_a(b) = \round{\frac{a}{b}}$, where $\round{\cdot}$ returns the nearest integer to the input value (rounding up for multiples of one-half).  Again, define $a\Mod{b} = b - q_a(b)a$.
+\end{definition}
+
+In the original definition, it is true that $a\Mod{b}
+
+\section{Goals of Scheme}
+\section{Motivation for Approach}
+\section{Implementation}
+    \subsection{\textit{Special} Distribution, \D}
+    \subsection{Proof of Validity}
+\section{Attacks}
+\subsection{Least Significant Bit Guessing}
+\subsection{Solving Approximate GCD}
+
+
+
+\end{document}
+
