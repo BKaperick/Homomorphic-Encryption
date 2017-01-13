@@ -3,14 +3,14 @@
 \input{C:/Programs/Vim/style.tex}
 
 \newcommand{D}{\mathcal{D}_{\gamma,\rho}(p)}
-
+\newcommand{ring}{\mathcal{S}}
 \title{Analysis of Somewhat Homomorphic Encryption Over the Integer Ring}
 \author{Bryan Kaperick}
 
 \begin{document}
 \maketitle\newpage
 \section{Preliminaries}
-
+\subsection{Symmetric Modulus}
 Traditionally, the modulus operator can be defined as follows
 \begin{definition}
   Define $q_a(b) = \floor{\frac{b}{a}}$.  Then, define $a\Mod{b} = b - q_a(b)a$, which is equivalent to setting $a\Mod{b}$ to be the representative in $[0,b)$ for the residue class containing $a$ for the congruence relation of congruence modulo $b$.
@@ -21,10 +21,29 @@ However, for the purposes of this paper, it will be seen that a slightly altered
   Define $q_a(b) = \round{\frac{a}{b}}$, where $\round{\cdot}$ returns the nearest integer to the input value (rounding up for multiples of one-half).  Again, define $a\Mod{b} = b - q_a(b)a$.
 \end{definition}
 
-In the original definition, it is true that $a\Mod{b}
+While notationally annoying, this approach makes much more sense once the \emph{idea} of this scheme is understood.  In general, the scheme relies on recovering a noisy approximation of a multiple of the secret key, so in this respect, it is more natural to allow a symmetric distribution of noisy approximations to all be in the same \emph{class}.  More on this later.
+
+\subsection{Rounding Operator}
+
+In these notes it is often necessary to round a number to the nearest integer.  The following notation is used,
+\begin{definition}
+  Let $x\in\R$.  Then, $\round{x}$ is equal to the integer closest to $x$ (rounding down if equidistant).
+\end{definition}
 
 \section{Goals of Scheme}
+This scheme is intended to be a homomorphic encryption scheme equipped to allow evaluation of the encrypted data on arbitrary binary addition and multiplication circuits (up to a pre-determined depth) such that the evaluated data almost surely decrypts correctly.  
+
 \section{Motivation for Approach}
+The main idea is to map a bit to an arbitrary integer multiple of the secret key --- also an integer --- with some additional noise added.  Let $\ring$ be the space of integer multiples of the secret key, $sk$.  Let $x,y\in \ring$.  Observe that with integer addition and multiplication, $\ring$ forms a ring.
+
+\begin{proof}
+  $\ring = \left\{ x | \exists n\in \Z, x = n\cdot sk\right\}$.  Let $x,y\in \ring$. If $x = n\cdot sk$ and $y = m\codt sk$ for some $n,m\in\Z$, then clearly $x+y = n\cdot sk + m\cdot sk = (n+m)\cdot sk$, so the operation is closed.  Integer addition is commutative.  Every integer $n\in \Z$ has additive inverse $-n$, and both $n\cdot sk$ and $-n\cdot sk$ are in $\ring$.  Clearly $0\cdot sk$ is in $\ring$, satisfying conditions for the identity.  Thus, $\ring$ is a group under addition.  
+  
+  Multiplication is also closed with respect to the integers, is associative and distributes over addition.  $1$ satisfies as the identity element.  Thus, multiplication acts as the second binary operation, and $(\ring, +, \cdot)$ is a ring.
+\end{proof}
+
+This fact is the foundational motivation behind this scheme.  
+
 \section{Implementation}
     \subsection{\textit{Special} Distribution, \D}
     \subsection{Proof of Validity}
