@@ -41,22 +41,47 @@ class Test(unittest.TestCase):
         self.assertEqual(byte_length(1), 1)
         self.assertEqual(byte_length(0), 0)
 
-    def test_mod(self):
+    def test_quotient(self):
         p = 5
-        qs = [2,2,2,3,3,3,3,3,4]
-        rs = [0,1,2,-2,-1,0,1,2,-2]
-        
-        for i,z in enumerate(range(10,19)):
-            self.assertEqual(q(p,z), qs[i])
-            self.assertEqual(rmod(p,z), rs[i])
+        self.assertEqual(q(p,10), 2)
+        self.assertEqual(q(p,11), 2)
+        self.assertEqual(q(p,12), 2)
+        self.assertEqual(q(p,13), 3)
+        self.assertEqual(q(p,14), 3)
+        self.assertEqual(q(p,15), 3)
+        self.assertEqual(q(p,16), 3)
+        self.assertEqual(q(p,17), 3)
+        self.assertEqual(q(p,18), 4)
         
         p = 2
-        qs = [0,1,1,2,2]
-        rs = [0,-1,0,-1,0]
-        for i,z in enumerate(range(0,5)):
-            self.assertEqual(q(p,z), qs[i])
-            self.assertEqual(rmod(p,z), rs[i])
-    
+        self.assertEqual(q(p,0), 0)
+        self.assertEqual(q(p,1), 0)
+        self.assertEqual(q(p,2), 1)
+        self.assertEqual(q(p,3), 1)
+        self.assertEqual(q(p,4), 2)
+        
+    def test_rmod(self):
+        p = 5
+        self.assertEqual(rmod(p,10), 0)
+        self.assertEqual(rmod(p,11), 1)
+        self.assertEqual(rmod(p,12), 2)
+        self.assertEqual(rmod(p,13), -2)
+        self.assertEqual(rmod(p,14), -1)
+        self.assertEqual(rmod(p,15), 0)
+        self.assertEqual(rmod(p,16), 1)
+        self.assertEqual(rmod(p,17), 2)
+        self.assertEqual(rmod(p,18), -2)
+        p = 2
+        self.assertEqual(rmod(p,0), 0)
+        self.assertEqual(rmod(p,1), 1)
+        self.assertEqual(rmod(p,2), 0)
+        self.assertEqual(rmod(p,3), 1)
+        self.assertEqual(rmod(p,4), 0)
+   
+    def test_rmod2_equiv(self):
+        for i in range(-500,500):
+            self.assertEqual(rmod(2,i), i % 2)
+
     # Given this paper's rmod(p,z), we establish the following conjecture:
     # Let a and b be integers.
     #     If a even and b odd, rmod(2,a) - rmod(2,b) == rmod(2,b-a) == 1
@@ -69,12 +94,12 @@ class Test(unittest.TestCase):
                 self.assertEqual(rmod(2, a-b), 0)
                 self.assertEqual(rmod(2, a) - rmod(2,b), 0)
             elif b % 2 == 1:
-                self.assertEqual(rmod(2, a-b), -1)
+                self.assertEqual(rmod(2, a-b), 1)
                 self.assertEqual(rmod(2, a) - rmod(2,b), 1)
         else:
             if b % 2 == 0:
-                self.assertEqual(rmod(2, a-b), -1)
-                self.assertEqual(rmod(2, a) - rmod(2,b), -1)
+                self.assertEqual(rmod(2, a-b), 1)
+                self.assertEqual(rmod(2, a) - rmod(2,b), 1)
             elif b % 2 == 1:
                 self.assertEqual(rmod(2, a-b), 0)
                 self.assertEqual(rmod(2, a) - rmod(2,b), 0)
@@ -91,6 +116,10 @@ class Test(unittest.TestCase):
         scheme = self.scheme
         self.assertEqual(scheme.decrypt(scheme.encrypt(0)), 0)
         self.assertEqual(scheme.decrypt(scheme.encrypt(1)), 1)
+        for i in range(50):
+            b = rand.getrandbits(1)
+            self.assertEqual(scheme.decrypt(scheme.encrypt(b)), b)
+
 
     # Encrypt and decrypt a simple test message.  With these parameters, the chance of
     # information corruption is at most negligible.
@@ -154,12 +183,13 @@ class Test(unittest.TestCase):
             decrypted = scheme.decrypt_bytes(evaluated_bits)
             self.assertEqual(decrypted[0], int(message % 2 == (message & 2) >> 1 == 1))
 
+    '''
     def test_lsb(self):
         messages = [0, 15, 16, 458, 1000, 10000,10001]
         for message in messages:
             bit = self.attack.learn_LSB(message)
             qp = q(self.scheme.sk, message) % 2
             self.assertEqual(bit, qp)
-
+    '''
 if __name__ == '__main__':
     unittest.main()

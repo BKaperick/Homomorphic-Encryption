@@ -24,7 +24,7 @@ class Scheme:
             self.sk += 1
 
         self.pk = [2]
-        while self.pk[0] % 2 == 0 or rmod(self.sk, self.pk[0]) % 2 == 1:
+        while self.pk[0] % 2 == 0 or rmod_old(self.sk, self.pk[0]) % 2 == 1:
             self.pk = []
             for i in range(self.intsPK+1):
                 x = self._dist_special()
@@ -35,9 +35,12 @@ class Scheme:
                     self.pk.insert(0,x)
     
     def encrypt(self, m):
+        # Initialize random variables
         S_size = rand.randrange(1, self.intsPK+1)
         S = rand_subset1(self.intsPK, size = S_size)
         r = rand_of_size(self.lenNoise_secondary, signed=True)
+        
+        # Apply encrypt. function
         val = m + 2*r + 2*sum([self.pk[i] for i in S])
         c = rmod(self.pk[0], val)
         return c
@@ -72,9 +75,9 @@ class Scheme:
         return func(encrypted_bits)
 
     def decrypt(self, c):
-        return rmod(self.sk, c) % 2
+        return rmod_old(self.sk, c) % 2
 
-    # Input list of integers, each element corresponding to an encrypted bit
+    # Input ist of integers, each element corresponding to an encrypted bit
     # Output bytearray of decrypted message
     def decrypt_bytes(self, message_enc):
         message = 0

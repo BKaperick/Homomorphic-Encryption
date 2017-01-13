@@ -56,7 +56,7 @@ class Attack():
             return 2*self.binary_GCD(a/2, b/2)
         elif a % 2 == b % 2 == 1:
             new_a = (a - b) / 2
-            return self.binary_GCD(new_a, b
+            return self.binary_GCD(new_a, b)
         elif a % 2 == 1:
             return self.binary_GCD(a, b/2)
         elif b % 2 == 1: # else

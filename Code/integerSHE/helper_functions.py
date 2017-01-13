@@ -50,10 +50,20 @@ def bit_length(num):
 def byte_length(num):
     return ceil(log(num+1,2) / 8)
 
+def q_old(p,z):
+    return (2*z+p) // (2*p)
+
 #the quotient between p and z rounded to the nearest integer
 def q(p,z):
     #return round(z/p)
-    return (2*z+p) // (2*p)
+    actual = z / p
+    lower = z // p
+    if actual - lower <=.5:
+        return lower
+    return lower+1
+
+def rmod_old(p,z):
+    return z - q_old(p,z)*p
 
 # For the purposes of this paper, r(p,z) == z mod p
 def rmod(p,z):
