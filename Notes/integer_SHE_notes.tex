@@ -2,8 +2,10 @@
 \usepackage{C:/Programs/Vim/TiaStyle}
 \input{C:/Programs/Vim/style.tex}
 
-\newcommand{D}{\mathcal{D}_{\gamma,\rho}(p)}
-\newcommand{ring}{\mathcal{S}}
+\newcommand{\C}[1]{\mathcal{C}_{#1}}
+\renewcommand{\D}{\mathcal{D}_{\gamma,\rho}(p)}
+\newcommand{\ring}{\mathcal{S}}
+\newcommand{\nring}{\mathcal{S}_n}
 \title{Analysis of Somewhat Homomorphic Encryption Over the Integer Ring}
 \author{Bryan Kaperick}
 
@@ -13,12 +15,12 @@
 \subsection{Symmetric Modulus}
 Traditionally, the modulus operator can be defined as follows
 \begin{definition}
-  Define $q_a(b) = \floor{\frac{b}{a}}$.  Then, define $a\Mod{b} = b - q_a(b)a$, which is equivalent to setting $a\Mod{b}$ to be the representative in $[0,b)$ for the residue class containing $a$ for the congruence relation of congruence modulo $b$.
+  Define $q_a(b) = \floor{\frac{b}{a}}$.  Then, define $a\mod{b} = b - q_a(b)a$, which is equivalent to setting $a\mod{b}$ to be the representative in $[0,b)$ for the residue class containing $a$ for the congruence relation of congruence modulo $b$.
 \end{definition}
 
 However, for the purposes of this paper, it will be seen that a slightly altered definition is much more convenient.
 \begin{definition}
-  Define $q_a(b) = \round{\frac{a}{b}}$, where $\round{\cdot}$ returns the nearest integer to the input value (rounding up for multiples of one-half).  Again, define $a\Mod{b} = b - q_a(b)a$.
+  Define $q_a(b) = \round{\frac{a}{b}}$, where $\round{\cdot}$ returns the nearest integer to the input value (rounding up for multiples of one-half).  Again, define $a\mod{b} = b - q_a(b)a$.
 \end{definition}
 
 While notationally annoying, this approach makes much more sense once the \emph{idea} of this scheme is understood.  In general, the scheme relies on recovering a noisy approximation of a multiple of the secret key, so in this respect, it is more natural to allow a symmetric distribution of noisy approximations to all be in the same \emph{class}.  More on this later.
@@ -34,18 +36,55 @@ In these notes it is often necessary to round a number to the nearest integer.  
 This scheme is intended to be a homomorphic encryption scheme equipped to allow evaluation of the encrypted data on arbitrary binary addition and multiplication circuits (up to a pre-determined depth) such that the evaluated data almost surely decrypts correctly.  
 
 \section{Motivation for Approach}
-The main idea is to map a bit to an arbitrary integer multiple of the secret key --- also an integer --- with some additional noise added.  Let $\ring$ be the space of integer multiples of the secret key, $sk$.  Let $x,y\in \ring$.  Observe that with integer addition and multiplication, $\ring$ forms a ring.
+The main idea is to map a bit to an arbitrary integer multiple of the secret key --- also an integer --- with some additional noise added.  Let $\ring$ be the space of integer multiples of the secret key, $s$.  Let $x,y\in \ring$.  Observe that with integer addition and multiplication, $\ring$ forms a ring.
 
 \begin{proof}
-  $\ring = \left\{ x | \exists n\in \Z, x = n\cdot sk\right\}$.  Let $x,y\in \ring$. If $x = n\cdot sk$ and $y = m\codt sk$ for some $n,m\in\Z$, then clearly $x+y = n\cdot sk + m\cdot sk = (n+m)\cdot sk$, so the operation is closed.  Integer addition is commutative.  Every integer $n\in \Z$ has additive inverse $-n$, and both $n\cdot sk$ and $-n\cdot sk$ are in $\ring$.  Clearly $0\cdot sk$ is in $\ring$, satisfying conditions for the identity.  Thus, $\ring$ is a group under addition.  
+  $\ring = \left\{ x | \exists n\in \Z, x = n\cdot s\right\}$.  Let $x,y\in \ring$. If $x = n\cdot s$ and $y = m\cdot s$ for some $n,m\in\Z$, then clearly $x+y = n\cdot s + m\cdot s = (n+m)\cdot s$, so the operation is closed.  Integer addition is commutative.  Every integer $n\in \Z$ has additive inverse $-n$, and both $n\cdot s$ and $-n\cdot s$ are in $\ring$.  Clearly $0\cdot s$ is in $\ring$, satisfying conditions for the identity.  Thus, $\ring$ is a group under addition.  
   
   Multiplication is also closed with respect to the integers, is associative and distributes over addition.  $1$ satisfies as the identity element.  Thus, multiplication acts as the second binary operation, and $(\ring, +, \cdot)$ is a ring.
 \end{proof}
 
-This fact is the foundational motivation behind this scheme.  
+This fact is the foundational motivation behind this scheme.  Since adding and multiplying elements of $\ring$ will also be elements of $\ring$, so the goal is to develop a scheme which maps these operations of $\ring$ to the equivalent operations on the unencrypted bits corresponding to those elements of $\ring$.  The security of the scheme comes from adding noise to the elements of $\ring$ to make the act of retrieving $s$ difficult.
+
+\subsection{Noisy Ring $\nring$}
+
+To formalize the notion of noise in this ring, we will discuss a new ring, $\nring$.  First, we begin with the set of integers, $\Z$.  We define a congruence relation on $\Z$,
+\begin{definition}
+    Fix $s\in\Z^+$.  Let $a,b\in \Z$.  We will say $a$ is equivalent to $b$, or $a\equiv b$, if $q_s(a) = q_s(b)$.  That is, if $\round{\frac{a}{s}} = \round{\frac{b}{s}}$.  This is equivalent to defining the relation as the following:  Decompose $a$ and $b$ into $a = xs + n$ and $b = ys + m$ for some $x,y\in\Z$ and $m,n\in ( -s/2, s/2]$.  Then, $a\equiv b$ if and only if $x = y$.
+\end{definition}
+
+This relation clearly satisfies symmetry, reflexivity and transitivity.  The equivalency classes of this relation partition $\Z$ into neighborhoods around each multiple of $s$.  This can be enumerated by denoting $\mathcal{C}_i$ to be the equivalency class around $i\cdot s$, so
+\[\Z= \bigcup_{i\in\Z} \C{i}.\]
+Now, let $\nring$ be the set of these equivalency classes.  
+\[\nring = \left\{\dots,\, \C{-2},\,\C{-1},\,\C{0},\,\C{1},\,\C{2},\dots \right\} .\]
+Now, define the following binary operations, $\oplus$ and $\odot$.
+\begin{definition}
+    Let $\C{i},\C{j}\in\nring$ be equivalency classes as described above.  Then, define this operation as $\C{i} \oplus \C{j} = \C{i+j}$.
+\end{definition}
+
+\begin{definition}
+    Let $\C{i},\C{j}\in\nring$ be equivalency classes as described above.  Then, define this operation as $\C{i} \odot \C{j} = \C{i\cdot j}$.
+\end{definition}
+
+Since both operations return elements of $\nring$, they are both closed.  It is simple to show that these satisfy the necessary conditions to make $\left(\nring, \oplus, \odot\right)$ a ring.
+
+This structure will serve as a stronger model for discussing the encryption scheme.  The $\oplus$ and $\odot$ operators mimic the interaction of two integers near a multiple of $s$.
 
 \section{Implementation}
-    \subsection{\textit{Special} Distribution, \D}
+    \subsection{\textit{Special} Distribution, $\D$}
+    We define $\D$ and analyze it prior to discussing the encryption scheme.  We define $\D$,
+\begin{definition}
+    Let $s\in\Z$ be odd and positive.  Now define the distribution of interest as
+    \[
+        \D = \{ \text{choose}\, q\leftarrow\Z\cap[0,2^\gamma/s),\quad r\leftarrow \Z\cap (2^{-\rho}, 2^\rho),\quad\text{output}\, x = sq+r\}.
+        \] 
+\end{definition}
+
+Random variables drawn from $\D$ are simply noisy multiples of $s$ with certain size restrictions. $r$ is the \emph{noise parameter}, with $\rho$ dictating the size, in bits of $r$.  Notice it is evenly distributed over $sq$.  Since for $x\leftarrow\D$, $x = sq+r$, if $\rho = 0$ then $r = 0$ so $x\in\ring$.  However, with nonzero noise, we see that if $x = sq+r$, then $x\in\C{q}\in\nring$.  So, this distribution can be seen as choosing a random element of $\nring$ and then a random element within a subset of that equivalency class.  
+
+The noise level determines how far from the nearest multiple of $s$ an element from $\D$ can be.
+
+
     \subsection{Proof of Validity}
 \section{Attacks}
 \subsection{Least Significant Bit Guessing}
