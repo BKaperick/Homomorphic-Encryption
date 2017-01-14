@@ -76,7 +76,7 @@ This structure will serve as a stronger model for discussing the encryption sche
 \begin{definition}
     Let $s\in\Z$ be odd and positive.  Now define the distribution of interest as
     \[
-        \D = \{ \text{choose}\, q\leftarrow\Z\cap[0,2^\gamma/s),\quad r\leftarrow \Z\cap (2^{-\rho}, 2^\rho),\quad\text{output}\, x = sq+r\}.
+        \D = \{ \text{choose}\, q\leftarrow\Z\cap[0,2^\gamma/s),\quad r\leftarrow \Z\cap (-2^{\rho}, 2^\rho),\quad\text{output}\, x = sq+r\}.
         \] 
 \end{definition}
 
@@ -84,9 +84,44 @@ Random variables drawn from $\D$ are simply noisy multiples of $s$ with certain 
 
 The noise level determines how far from the nearest multiple of $s$ an element from $\D$ can be.
 
+    \subsection{Overview of Scheme}
+    First, $\lambda$, the security parameter is set.  Then, the following parameters are set
+\begin{itemize}
+    \item[$\gamma$] is the bit-length of the integers in the public key, 
+    \item[$\nu$] is the bit-length of the secret key (which is the hidden approximate-gcd of all the public-key integers), 
+    \item[$\rho$] is the bit-length of the noise (i.e., the distance between the public key elements and the nearest multiples of the secret key), and 
+    \item[$\tau$] is the number of integers in the public key.
+\end{itemize}
 
-    \subsection{Proof of Validity}
+Then, the \texttt{KeyGen}, \texttt{Encrypt}, \texttt{Decrypt}, and $\texttt{Evaluate}$ functions can be described in terms of these, and the input bit, $m\in\{0,1\}$.
+
+\subsubsection{\texttt{KeyGen}}
+The first step is to create the public key, $p$ and the secret key, $s$.  We define $s$ to be an odd $\nu$-bit integer, so
+\[ s\leftarrow (2\Z + 1)\cap [2^{\nu - 1}, 2^\nu).\]
+
+
+To create the public key, we start by sampling $\D$ with $x_i \leftarrow \D$ for all $i=0,1,\dots,\tau$.  Relabel to ensure $x_0$ is the largest.  Restart this process until $x_0$ is odd and $x_0\mod{s}$ is even.  Then, $p = <x_0,\dots,x_\tau>$.
+    
+\subsubsection{\texttt{Encrypt}}
+
+Given a bit $m\in\{0,1\}$, we first choose a random subset $S\subseteq \{1,2,\dots,\tau\}$ and random realization $r\leftarrow (-2^{\rho'},2^{\rho'})$.  The encrypted integer, $c$ is defined
+\[c = \left( m+2r + \sum_{i\in S}x_i \right)\mod{x_0}.\]
+
+A discussion of why this works is in \ref{proof}.
+
+\subsubsection{\texttt{Decrypt}}
+Given an integer $c$ which has been encrypted by this scheme, it can be unencrypted by setting
+\[
+    m = c\mod{s}\mod{2}.
+    \]
+And $m$ is the unencrypted bit.
+
+    \subsection{Proof of Validity}\label{proof}
+
+    
+
 \section{Attacks}
+
 \subsection{Least Significant Bit Guessing}
 \subsection{Solving Approximate GCD}
 
