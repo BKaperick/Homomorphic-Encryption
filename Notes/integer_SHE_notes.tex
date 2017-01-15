@@ -71,7 +71,7 @@ Since both operations return elements of $\nring$, they are both closed.  It is 
 This structure will serve as a stronger model for discussing the encryption scheme.  The $\oplus$ and $\odot$ operators mimic the interaction of two integers near a multiple of $s$.
 
 \section{Implementation}
-    \subsection{\textit{Special} Distribution, $\D$}
+    \subsection{Special Distribution, $\D$}
     We define $\D$ and analyze it prior to discussing the encryption scheme.  We define $\D$,
 \begin{definition}
     Let $s\in\Z$ be odd and positive.  Now define the distribution of interest as
@@ -171,9 +171,15 @@ First, let us proof a useful lemma.
     \end{align*}
 
 Now, applying the first step of decryption to $c$, we have
-    \[c\mod{s} = m + 2\left( r + s\sum_{i=0}^n c_{\alpha_i}\right) - \round{\frac{m + 2r + 2\sum_{i=0}^nc_{\alpha_i}s}{x_0}}(x_0)\]
-and
-    \[c\mod{s} = m + 2r - \round{\frac{m + 2r + 2\sum_{i=0}^nc_{\alpha_i}s}{c_0s+r_0}}r_0\mod{s}.\]
+    \begin{align*}
+        c\mod{s} &= m + 2\left( r + s\sum_{i=0}^n c_{\alpha_i}\right) - \round{\frac{m + 2r + 2\sum_{i=0}^nc_{\alpha_i}s}{x_0}}(x_0)\mod{s}\\
+                 &= m + 2\left( r + s\sum_{i=0}^n c_{\alpha_i}\right) - \round{\frac{m + 2r + 2\sum_{i=0}^nc_{\alpha_i}s}{x_0}}(c_0s+r_0)\mod{s}
+    \end{align*}
+    and since any multiple of $s$ reduces to $0\mod{s}$, this simplies to
+    \[c\mod{s} = m + 2r - \round{\frac{m + 2r + 2\sum_{i=0}^nc_{\alpha_i}s}{x_0}}r_0\mod{s}.\]
+
+    Now, we rearrange 
+
 
 
 \end{proof}<++>
