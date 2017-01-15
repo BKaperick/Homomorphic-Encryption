@@ -144,21 +144,6 @@ Then, to decrypt,
 \[m' = c\mod{s}\mod{2}.\]
 The scheme perfectly decrypts if \texttt{Decrypt} is the left inverse of $\texttt{Encrypt}$.  That is, almost surely, for an arbitrary $m\in\{0,1\}$, \texttt{Decrypt}$($\texttt{Encrypt}$(m)) = m$.
 
-First, let us proof a useful lemma.
-\begin{lemma}
-    Given $a,b\in\Z$, and $x,y\in\Z$ and the constraint $b\mod{x}\mod{y} = 0$, then the following equality holds:
-    \[ a + b\mod{x}\mod{y} = a\mod{x}\mod{y}.\]
-    \label{lem}
-\end{lemma}
-\begin{proof}
-    Let $a,b,x,y\in\Z$ be arbitrary such that $b\mod{x}\mod{y} = 0$.  Then, $b$ can be decomposed (not necessarily distinct) into $b = cx + dy$ for some $c,d\in\Z$.
-    Then,
-    \begin{align*}
-        a+b\mod{x}\mod{y} &= a+ cx+dy\mod{x}\mod{y}\\
-        &= a+dy\mod{x}\mod{y}
-    \end{align*}<++>
-\end{proof}<++>
-
 \begin{proof}
     Let $m\in\{0,1\}$ be arbitrary with the above scheme.
     \[c = m + 2r_e + 2\sum_{i=0}^n x_{\alpha_i}\mod{x_0}\]
