@@ -114,6 +114,23 @@ Given an integer $c$ which has been encrypted by this scheme, it can be unencryp
 \[m = c\mod{s}\mod{2}.\]
 And $m$ is the unencrypted bit.
 
+It will become relevant later to state an alternate (equivalent) decryption.
+
+\begin{lemma}
+    Let $m\in\{0,1\}$ be an arbitrary bit.  Let $c = \texttt{Encrypt}(m)$ under a scheme with secret key $s$.  Then, 
+    \[
+        c\mod{s}\mod{2} = c\mod{2} \^ q_s(c)\mod{2}.\]
+    \label{lem:alt}
+\end{lemma}
+\begin{proof}
+    Recall that by construction with \texttt{KeyGen}, $s$ is odd.  Also, by definition, $c\mod{s} = c - \round{\frac{c}{s}}s$.  In decryption of $c$, we are only concerned with the parity of $c\mod{s}$.  With $s$ odd, the parity of the $\round{\cdot}$ term is unchanged.  Thus,
+    \[c\mod{s}\mod{2} = c - \round{\frac{c}{s}}s\mod{2} = c - \round{\frac{c}{s}}\mod{2}.\]
+    The parity of the addition of two integers is the binary $\^$ (XOR) of their least significant bit.  Thus,
+    \[c - \round{\frac{c}{s}}\mod{2} = c\mod{2} \^ \round{\frac{c}{s}}\mod{2}.\]
+
+    This completes the result.
+\end{proof}
+
 \subsubsection{\texttt{Evaluate}}
 Performing integer addition and multiplication on the encrypted values and then decrypting returns the equivalent binary addition and multiplication on the original bits.
 
@@ -243,7 +260,26 @@ Now, applying the first step of decryption to $c$, we have
 
 \section{Attacks}
 
+The secret key, $s$, must be kept private in order to prevent unwanted parties from decrypting data under this scheme.  Clearly, if an attacker posesses $s$ and an encrypted bit, $c$, it is trivial to compute $m = c\mod{s}\mod{2}$ to uncover the data.  Since the public key elements are noisy muiltiples of $s$, the process for uncovering $s$ is at most as difficult as solving the Approximate GCD problem.
+
+Let $\mathcal{A}$ be an attacker with advantage $\varepsilon$ if for a given ciphertext and public key, it can output the plaintext bit with probability $\frac{1}{2} + \varepsilon$.  With this, it will be demonstrated how $\mathcal{A}$ can uncover the secret key.
+
+Before discussing the details of this attack, we give an overview of the Least Significant Bit estimation problem.
+
 \subsection{Least Significant Bit Guessing}
+   Given an arbitrary $z\in[0,2^\gamma)$ with $|z\mod{s}| < 2^\rho$ and public key $p = <x_0,x_1,\dots,x_\tau>$, the output is the least significant bit of $q_s(z)$, which isequivalent to \texttt{Decrypt}$(z)$.
+
+    The method proposed for estimating this value, is to simply perform the following procedure poly$(\lambda)/\varepsilon$ times, and take the majority result.
+
+    Choose a random bit $m$ and perform $c = $ \texttt{Encrypt}$(z+m)$.  Then use $\mathcal{A}$ with $c$ and $p$ to predict $a = $\texttt{Decrypt}$(c)$.  Finally, set $b = a \^ z\mod{2} \^ m$.  
+    
+    This scheme will return with probability proportional to $\varepsilon$, the correct answer.
+
+\begin{proof}
+    Consider a single iteration of the above-described method.  $\texttt{Decrypt}(\texttt{Encrypt}(z+m))$ is equivalent to
+    \[\texttt{Decrypt}(z)\^ m = z\mod{s}\mod{2} ^ m
+\end{proof}<++>
+
 \subsection{Solving Approximate GCD}
 
 
