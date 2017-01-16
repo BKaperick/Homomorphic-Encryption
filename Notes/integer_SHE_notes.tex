@@ -273,7 +273,9 @@ Before discussing the details of this attack, we give an overview of the Least S
 
     Choose a random bit $m$ and perform $c = $ \texttt{Encrypt}$(z+m)$.  Then use $\mathcal{A}$ with $c$ and $p$ to predict $a = $\texttt{Decrypt}$(c)$.  Finally, set $b = a \wedge z\mod{2} \wedge m$.  
     
-    This scheme will return with probability proportional to $\varepsilon$, the correct answer.
+\begin{theorem}
+    This routine will return the least significant bit of $q_s(z)$ with probability proportional to $\varepsilon$.
+\end{theorem}
 
 \begin{proof}
     Consider a single iteration of the above-described method.  $\texttt{Decrypt}(\texttt{Encrypt}(z+m))$ is equivalent to
@@ -289,6 +291,35 @@ Before discussing the details of this attack, we give an overview of the Least S
     \end{align*}
     which is the least significant bit of $q_s(z)$, as desired.
 \end{proof}
+
+\subsection{Binary GCD Algorithm}
+To give motivation for the Approximate GCD algorithm, a brief explanation of the Binary (exact) GCD algorithm is helpful.
+
+The Euclidean algorithm for solving the GCD problem is given as,
+
+    Given $x,y\in\Z$, use the following procedure.
+    \begin{enumerate}
+        \item If $x < y$, swap $x,y$
+        \item iteratively form
+            \begin{align*}
+                x &= q_0y+r_0\\
+                y &= q_1r_0 + r_1\\
+                r_0 &= q_2r_1 + r_2\\
+                r_1 &= q_3r_2 + r_3\\
+                &\vdots\\
+                r_{k-2} &= q_kr_{k-1} + r_k
+            \end{align*}
+        \item Return $r_{k-1}$, the gcd of $x$ and $y$.
+    \end{enumerate}
+
+The Binary GCD algorithm is similar, but uses simpler bit-wise arithmetic operations.  It relies on the following identities for arbitrary $u,v\in\Z$.
+\begin{itemize}
+    \item $\gcd{u,0} = u$
+    \item $\gcd{0,v} = v$
+    \item $u$ and $v$ even, then $\gcd{u,v} = 2\cdot \gcd{\frac{u}{2},\frac{v}{2}}$
+    \item $u$ odd and $v$ even, then $\gcd{u,v} = \gcd{u,\frac{v}{2}}$ (same is true swapping $u,v$)
+    \item $u$ and $v$ odd and $u\geq v$, then $\gcd{u,v} = \gcd{ \frac{u-v}{2},v}$
+\end{itemize}
 
 \subsection{Solving Approximate GCD}
 
