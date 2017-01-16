@@ -84,7 +84,7 @@ Random variables drawn from $\D$ are simply noisy multiples of $s$ with certain 
 
 The noise level determines how far from the nearest multiple of $s$ an element from $\D$ can be.
 
-    \subsection{Overview of Scheme}
+    \subsection{Overview of Scheme}\label{scheme}
     First, $\lambda$, the security parameter is set.  Then, the following parameters are set
 \begin{itemize}
     \item[$\gamma$] is the bit-length of the integers in the public key, 
@@ -129,6 +129,45 @@ So, we claim the following,
     \label{perfect}
 \end{theorem}
 
+We begin with a technical lemma.
+\begin{lemma}
+    Consider a scheme generated according to the conditions of \ref{scheme} with secret key $s$ and length of public key $\tau$ and $\alpha_1,\dots,\alpha_n$ the indices of the random public key subset from \texttt{KeyGen}.  Let $c$ be the encryption of an arbitrary bit $m\in\{0,1\}$. (So $c = m + 2r_e + \sum_{i=1}^n x_{\alpha_i}$).
+    If the noise parameter, $\rho$, satisfies 
+    \[\rho \leq \frac{1}{2}\left( \log_2(s-1) - \log_2(4\tau+5) -1 \right)\]
+    then 
+    \[
+        q_{x_0}(c)r_s(x_0) \in \left(-\frac{s-1}{2}, \frac{s-1}{2}\right].\]
+    \label{bound}
+\end{lemma}
+
+\begin{proof}
+    Assume $\rho \leq \frac{1}{2}\left( \log_2(s-1) - \log_2(4\tau+5) -1 \right)$ is given.  
+    The following are all equivalent,
+\begin{align*}
+    \rho &\leq \frac{1}{2}\left( \log_2(s-1) - \log_2(4\tau+5) -1 \right)\\
+    2\rho &\leq \log_2 \left( \frac{s-1}{2(4\tau+5)} \right)\\
+    (4\tau+5) 2^{2\rho} &< \frac{s-1}{2}.
+\end{align*}
+
+Decompose $x_0$ into $x_0 = c_0s+r_0$, $c_0,r_0\in\Z$ with $r_0\in (-2^\rho,2^\rho)$ and let $m\in\{0,1\}$ be arbitrary.
+
+\begin{align*}
+    (4\tau+5) 2^{2\rho} &= (1+2\tau + 2 + 2\tau + 1) 2^{2\rho}\\
+    &\geq \left( \frac{1}{c_0s} + \left( \frac{2\tau + 2}{c_0s} \right)2^\rho + (2\tau+1) \right)2^\rho\\
+    &=    \left( \frac{1+(2)2^\rho + (2\tau)2^\rho}{c_0s} + 2\tau + 1\right)2^\rho\\
+    &\geq \left( \frac{m+(2)2r_e + 2\sum_{i=1}^n c_is + r_{\alpha_i}}{c_0s+r_0}+1\right)2^\rho\\
+    &=    \left( \frac{m+(2)2r_e + 2\sum_{i=1}^n x_{\alpha_i}}{c_0s+r_0}+1\right)2^\rho\\
+    &=    \left|\round{\frac{m+(2)2r_e + 2\sum_{i=1}^n x_{\alpha_i}}{c_0s +r_0}}2^\rho\right|\\
+    &\geq \round{\frac{m+(2)2r_e + 2\sum_{i=1}^n x_{\alpha_i}}{c_0s +r_0}}2^\rho\\
+    &=    \round{\frac{m+(2)2r_e + 2\sum_{i=1}^n x_{\alpha_i}}{x_0}}2^\rho\\
+    &=    q_{x_0}(c)
+\end{align*}
+
+so the bound is achieved.
+
+\end{proof}
+
+Now, we are prepared to address the proof of theorem \ref{perfect}.
 
 \begin{proof}
 
@@ -156,9 +195,9 @@ Then, to decrypt,
 \[m' = c\mod{s}\mod{2}.\]
 
     \[c = m + 2r_e + 2\sum_{i=0}^n x_{\alpha_i}\mod{x_0}\]
-    Let $r = r_e + r_0 + \sum_{i=1}^nr_{\alpha_i}.$ Now, with the definition of $\mod{\cdot}$,
+    Let $r = r_e + \sum_{i=1}^nr_{\alpha_i}.$ Now, with the definition of $\mod{\cdot}$,
     \begin{align*}
-        c &= m + 2r_e + 2\sum_{i=0}^n x_{\alpha_i}\mod{x_0}\\
+      c &= m + 2r_e + 2\sum_{i=0}^n x_{\alpha_i}\mod{x_0}\\
         &= m + 2r + 2\sum_{i=0}^n c_{\alpha_i}s\mod{x_0}\\
         &= m + 2\left( r + s\sum_{i=0}^n c_{\alpha_i}\right)\mod{x_0}\\
         &= m + 2\left( r + s\sum_{i=0}^n c_{\alpha_i}\right) - \round{\frac{m + 2r + 2\sum_{i=0}^nc_{\alpha_i}s}{x_0}}(x_0)\\
@@ -170,14 +209,23 @@ Now, applying the first step of decryption to $c$, we have
                  &= m + 2\left( r + s\sum_{i=0}^n c_{\alpha_i}\right) - \round{\frac{m + 2r + 2\sum_{i=0}^nc_{\alpha_i}s}{x_0}}(c_0s+r_0)\mod{s}
     \end{align*}
     and since any multiple of $s$ reduces to $0\mod{s}$, this simplies to
-    \[c\mod{s} = m + 2r - \round{\frac{m + 2r + 2\sum_{i=0}^nc_{\alpha_i}s}{x_0}}r_0\mod{s}.\]
+    \begin{align*}
+        c\mod{s} &= m + 2r - \round{\frac{m + 2r + 2\sum_{i=0}^nc_{\alpha_i}s}{x_0}}r_0\mod{s}\\
+                 &= m + 2r - q_{x_0}(c)r_0\mod{s}.
+    \end{align*}
+    
+    By lemma \ref{bound}, 
+    
 
+     
+    
     Now, if
     \[ \left| 2r - \round{\frac{m + 2r + 2\sum_{i=0}^nc_{\alpha_i}s}{x_0}}r_0\right| < |s/2|-1,\]
     then
     \[c\mod{s} = m + 2\left(r - \round{\frac{m + 2r + 2\sum_{i=0}^nc_{\alpha_i}s}{x_0}}\frac{r_0}{2}\right).\]
     Thus, $c\mod{s}\mod{2} = m$, as desired.  
 \end{proof}
+
 
 
 \section{Attacks}

@@ -14,8 +14,10 @@ def f(a,b,x,y):
 maxval = 15
 with open('out.txt','w') as file_a:
     for a in range(1,maxval):
-        for c in range(1,maxval // 5):
-            for d in range(1,maxval // 5):
-                for x in range(maxval):
-                    b = c*x + d*y
-                    file_a.write(str(a) + ' ' + str(b) + ' ' + str(x) + ' ' + str(f(a,b,x,2)))
+        for c in range(2,maxval,2):
+            for d in range(1,maxval):
+                for x in range(1,maxval,2):
+                    b = c*x + 2*d
+                    res = f(a,b,x,2)
+                    file_a.write(str(a) + ' ' + str(b) + ' ' + str(x) + ' ' + str(res) + '\n')
+        file_a.write('\n')
