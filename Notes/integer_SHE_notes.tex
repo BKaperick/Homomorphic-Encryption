@@ -299,17 +299,17 @@ The Euclidean algorithm for solving the GCD problem is given as,
 
     Given $x,y\in\Z$, use the following procedure.
     \begin{enumerate}
-        \item If $x < y$, swap $x,y$
+        \item If $u < v$, swap $u,v$
         \item iteratively form
             \begin{align*}
-                x &= q_0y+r_0\\
-                y &= q_1r_0 + r_1\\
+                u &= q_0y+r_0\\
+                v &= q_1r_0 + r_1\\
                 r_0 &= q_2r_1 + r_2\\
                 r_1 &= q_3r_2 + r_3\\
                 &\vdots\\
                 r_{k-2} &= q_kr_{k-1} + r_k
             \end{align*}
-        \item Return $r_{k-1}$, the gcd of $x$ and $y$.
+        \item Return $r_{k-1}$, the gcd of $u$ and $v$.
     \end{enumerate}
 
 The Binary GCD algorithm is similar, but uses simpler bit-wise arithmetic operations.  It relies on the following identities for arbitrary $u,v\in\Z$.
@@ -320,6 +320,8 @@ The Binary GCD algorithm is similar, but uses simpler bit-wise arithmetic operat
     \item $u$ odd and $v$ even, then $\gcd{u,v} = \gcd{u,\frac{v}{2}}$ (same is true swapping $u,v$)
     \item $u$ and $v$ odd and $u\geq v$, then $\gcd{u,v} = \gcd{ \frac{u-v}{2},v}$
 \end{itemize}
+
+Then, simply 
 
 \subsection{Solving Approximate GCD}
 
