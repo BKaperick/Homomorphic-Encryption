@@ -1,0 +1,9 @@
+Title,Authors,Date,Summary,Score
+Cryptanalysis Of FHE Schemes,"Ahmed El-Yahyaoui, Mohamed Dafir Elkettani",May-16,,
+Efficient FHE From RLWE,"Xiaojun Zhang, Chunxiang Xu, Chunhua Jin, Run Xie, Jining Zhao",2014,,
+Exploring The Feasibility Of FHE,"Wei Wang, Yin Hu, Lianmu Chen, Xinming Huang, Berk Sunar",Mar-15,,
+FHE with Ideal Lattices,"Craig Gentry", 2009, "Details the first fully homomorphic scheme and introduces the squashing/bootstrapping technique to transform an SHE to FHE scheme.  Gets a bit more theoretical than the Integers paper, which makes it harder to follow.", 7/10
+FHE Over The Integers,"Marten van Dijk, Craig Gentry, Shai Halevi, Vinod Vaikuntanathan",2010,"Gives a full and detailed outline of a somewhat homomorphic scheme using an integer ring, and discusses at length the types of attacks they have considered, and prove all their results using bit-wise arithmetic.  The largest practical concern is the level of noise and the implications of different parameter choices.  Overall I am able to follow their methods, and the majority of details and motivations for each design decision.",8/10
+Guide To FHE,,,"Overview of the field and current research and applications.  Does not go into any implementation detail, but takes great care to give a formal introduction to the problem itself and what challenges one encounters in solving it.  Gives a lot of definitions and theorems summarizing current research, which is very helpful.",8
+HE Procedia Computer Science,"Monique Ogburn, Claude Turner, Pushkar Dahal",2013,,
+HE And Its Applications,"Xun Yi, Russell Paulet, Elisa Bertino",2014,"Book on FHE but does not appear to be extremely detailed",4/10

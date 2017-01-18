@@ -69,3 +69,10 @@ def rmod_old(p,z):
 def rmod(p,z):
     return z - q(p,z)*p
 
+def hamming_weight(arr, zero=0):
+    return len(arr) - arr.count(zero)
+
+def array_of_hamming_weight(length, weight):
+    arr = [1 for i in range(weight)] + [0 for i in range(length-weight)]
+    rand.shuffle(arr)
+    return arr

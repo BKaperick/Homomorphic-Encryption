@@ -32,6 +32,11 @@ In these notes it is often necessary to round a number to the nearest integer.  
   Let $x\in\R$.  Then, $\round{x}$ is equal to the integer closest to $x$ (rounding down if equidistant).
 \end{definition}
 
+
+\subsection{Other Notational Clarifications}
+The $\wedge$ operator refers to the binary \texttt{XOR}
+
+
 \section{Goals of Scheme}
 This scheme is intended to be a homomorphic encryption scheme equipped to allow evaluation of the encrypted data on arbitrary binary addition and multiplication circuits (up to a pre-determined depth) such that the evaluated data almost surely decrypts correctly.  
 
@@ -292,6 +297,26 @@ Before discussing the details of this attack, we give an overview of the Least S
     which is the least significant bit of $q_s(z)$, as desired.
 \end{proof}
 
+A brief discussion to gain intuition about how accurate this approach is for a given $\varepsilon$ advantage and a set number of iterations of the least significant bit guessing method.
+
+Let $p$ be the probability with which $\mathcal{A}$ returns the correct plaintext bit.  Let $n$ be the number of iterations of the LSB-guessing method run.  Let us denote the probability that the method will return the correct bit as $f(n,p)$.  A basic combinatorial result here yields
+\[
+    f(n,p) = \sum_{k=\floor{\frac{n}{2}} + 1}^n \binom{n}{k} p^k(1-p)^{n-k}.
+    \]
+
+Some example outputs with $1001$ trials are (note $p = .5 + \varepsilon$) 
+
+\begin{tabular}{|c|c|}\hline
+    $\varepsilon$ & $f(n,.5 + \varepsilon)$\\\hline
+    $0$ & $.50000$\\\hline
+    $.01$ & $.73663$\\\hline
+    $.025$ & $.94333$\\\hline
+    $.05$ & $.99925$ \\\hline
+\end{tabular}
+
+Which indicates a small advantage with a modest number of trials can produce impressive results.
+
+
 \subsection{Binary GCD Algorithm}
 To give motivation for the Approximate GCD algorithm, a brief explanation of the Binary (exact) GCD algorithm is helpful.
 
@@ -321,9 +346,52 @@ The Binary GCD algorithm is similar, but uses simpler bit-wise arithmetic operat
     \item $u$ and $v$ odd and $u\geq v$, then $\gcd{u,v} = \gcd{ \frac{u-v}{2},v}$
 \end{itemize}
 
-Then, simply 
+Then, the algorithm to calculate the GCD of two integers $u$ and $v$ is:
+\begin{enumerate}
+    \item If $u < v$, swap $u,v$
+    \item Recursively apply the above identities until $u = v$
+\end{enumerate}
+
+In practical implementation, Binary GCD tends to be in the range of $20-60\%$ more efficient than the Euclidean algorithm.
+
+However, the problem relevant to this attack is that of the approximate GCD.
 
 \subsection{Solving Approximate GCD}
+The Quotient-Binary-GCD algorithm is as follows:
+\begin{enumerate}
+    \item If $z_1 < z_2$, swap $u,v$
+    \item Let $b_i = q_s(z_i)\mod{2}$  (using above LSB algorithm)
+    \item If both $q_s(z_i)$ are odd, set $z_1 = z_1 - z_2$ and set $b_1 = 0$
+    \item For each $z_i$ with $b_i = 0$, set $z_i =\frac{z_i - (z_i\mod{2})}{2}$
+\end{enumerate}
+
+With sufficiently small noise and large secret key, this is identical to the binary GCD algorithm performed on $q_s(z_1)$ and $q_s(z_2)$.
+
+Thus, the procedure to recover $s$ is
+\begin{enumerate}
+    \item $\mathcal{B}$ draws $z_1^*,z_2^*\leftarrow \D$ 
+    \item Apply the Quotient Binary-GCD algorithm to these values until the output, $\tilde{z}$, equals $1$.
+    \item Now, applying the Quotient Binary-GCD algorithm to $z_1^*$ and $\tilde{z}$.  Gathering the parity of $q_s(z_1^*)$ in each iteration of the algorithm spells out the binary representation of $q_s(z_1^*)$ since each iteration results in a single bit shift on $z_1^*$.  
+    \item Return $s = \round{\frac{z_1^*}{q_p(z_1^*)}}$.
+\end{enumerate}
+
+This demonstrates (excluding some technical details) that an attack is feasible given an advantage $\varepsilon$ in decrypting a ciphertext.
+
+\subsection{Further Attack Strategies}
+
+\subsubsection{Brute Force Approximate GCD}
+
+Given two elements of the public key, $x_i$ and $x_j$.  Choose two guesses for the noises, $r_1',r_2'\in (-2^\rho,2^\rho)$ and guess $s' = \gcd{x_i - r_1', x_j - r_2'}$.  If the output $s'$ has $\nu$ bits, then store it as a potential key.
+
+The running time for this attack is $2^{2\rho}$, and given that $\rho << \nu$, this method should eventually uncover $s$ correctly.
+
+A similar approach is to factor $x_i - r_1'$ and check if it has a $\nu$ bit factor.  If so, and if that factor is an approximate divisor of $x_j - r_2'$, store it as a potential key.  Lenstra's elliptic curve-based factorization is dependent on the size of the factor, not on the size of $x_i$, with runtime on the order of $\exp(\mathcal{0}(\sqrt{\nu}))$.
+
+This second approach can have an attack running time closer to $2^{\rho + \sqrt{\nu}}$.
+
+Continued fraction-based approaches and Lattice attacks are also valid strategies.
+
+\section{Converting this Somewhat Homomorphic Scheme into a Fully Homomorphic Scheme}
 
 
 
